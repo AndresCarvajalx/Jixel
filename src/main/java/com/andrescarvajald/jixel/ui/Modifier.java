@@ -10,6 +10,7 @@ public class Modifier {
     private Pos alignment = null;
     private String backgroundColor = null;
     private String textFillColor = null;
+    private String onHoverColor = null;
 
     private Modifier() {}
 
@@ -49,6 +50,11 @@ public class Modifier {
         return this;
     }
 
+    public Modifier setOnHoverColor(Color color) {
+        this.onHoverColor = getStringFromColor(color);
+        return this;
+    }
+
     public String getStringFromColor(Color color) {
         return String.format("#%02X%02X%02X",
                 (int)(color.getRed() * 255),
@@ -75,7 +81,19 @@ public class Modifier {
             css.append("-fx-text-fill: ").append(textFillColor).append(";");
         }
         if (!css.isEmpty()) {
+            if (onHoverColor != null) {
+                applyOnHover(component);
+            }
             component.setStyle(css.toString());
         }
+    }
+
+    private void applyOnHover(Region node) {
+        node.setOnMouseEntered(e -> {
+            node.setStyle(node.getStyle() + String.format("-fx-background-color: %s; -fx-cursor: hand;", this.onHoverColor));
+        });
+        node.setOnMouseExited(e -> {
+            node.setStyle(node.getStyle().replaceAll("-fx-background-color:[^;]+;?", String.format("-fx-background-color: %s;", this.backgroundColor)));
+        });
     }
 }
